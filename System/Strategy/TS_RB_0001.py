@@ -42,8 +42,8 @@ class TS_RB_0001():
 
     # 과거 데이터 생성 (인디로 수신시 일봉은 연결선물, 분봉은 근월물 코드로 생성)
     def createHistData(self, instInterface):
-        # for i, v in enumerate(self.lstProductCode):
-        for i, v in enumerate(self.lstProductNCode):
+        # for i, v in enumerate(self.lstProductNCode):
+        for i, v in enumerate(self.lstProductCode):
             data = Strategy.getHistData(v, self.lstTimeFrame[i])
             if type(data) == bool:
                 if data == False:
@@ -53,7 +53,8 @@ class TS_RB_0001():
 
     # 과거 데이터 로드
     def getHistData(self):
-        data = Strategy.getHistData(self.lstProductNCode[self.ix], self.lstTimeFrame[self.ix])
+        # data = Strategy.getHistData(self.lstProductNCode[self.ix], self.lstTimeFrame[self.ix])
+        data = Strategy.getHistData(self.lstProductCode[self.ix], self.lstTimeFrame[self.ix])
         if type(data) == bool:
             if data == False:
                 return pd.DataFrame(None)

@@ -40,9 +40,9 @@ class Strategy(metaclass=SingletonMeta):
     lstPriceInfo = []
 
     lstMktData = []
-    strStartDate = "00000000"
-    strEndDate = "99999999"
-    strRqCnt = "420"
+    strStartDate = ''
+    strEndDate = ''
+    strRqCnt = '420'
     
     lstOrderInfo = []
     lstOrderInfo_Net = []
@@ -72,7 +72,7 @@ class Strategy(metaclass=SingletonMeta):
             for j in Strategy.dfInfoMst.index:
                 if i == Strategy.dfInfoMst['기초자산ID'][j]:
                     if Strategy.dfInfoMst['최종거래일'][j] != Strategy.strToday:
-                        lstProductCode.append(Strategy.dfInfoMst['단축코드'][j])
+                        lstProductCode.append(Strategy.dfInfoMst['종목코드'][j])
                         break
 
         return lstProductCode
@@ -104,7 +104,7 @@ class Strategy(metaclass=SingletonMeta):
     # Abnormal Order Check!
     def chkAbnormOrder(acnt_num, code, qty, price, direction):
         nChkCnt = 10
-        strUnder_ID = Strategy.dfInfoMst['기초자산ID'][Strategy.dfInfoMst['단축코드']==code].values[0]
+        strUnder_ID = Strategy.dfInfoMst['기초자산ID'][Strategy.dfInfoMst['종목코드']==code].values[0]
         strAsset_Code = Strategy.dfProductInfo['ASSET_CODE'][Strategy.dfProductInfo['UNDERLYING_ID']==strUnder_ID].values[0]
         dictOrder = {}
         dictOrder['ACCOUNT'] = acnt_num
@@ -157,12 +157,12 @@ class Strategy(metaclass=SingletonMeta):
             dictOrderInfo['OCCUR_TIME'] = dt.datetime.now().time()
             dictOrderInfo['STRATEGY_NAME'] = strategyName
             dictOrderInfo['PRODUCT_CODE'] = productCode
-            dictOrderInfo['UNDERLYING_ID'] = Strategy.dfInfoMst['기초자산ID'][Strategy.dfInfoMst['단축코드']==productCode].values[0]
+            dictOrderInfo['UNDERLYING_ID'] = Strategy.dfInfoMst['기초자산ID'][Strategy.dfInfoMst['종목코드']==productCode].values[0]
             dictOrderInfo['ASSET_CODE'] = Strategy.dfProductInfo['ASSET_CODE'][Strategy.dfProductInfo['UNDERLYING_ID']==dictOrderInfo['UNDERLYING_ID']].values[0]
             dictOrderInfo['ASSET_CLASS'] = Strategy.dfProductInfo['ASSET_CLASS'][Strategy.dfProductInfo['ASSET_CODE']==dictOrderInfo['ASSET_CODE']].values[0]
             dictOrderInfo['ASSET_NAME'] = Strategy.dfProductInfo['ASSET_NAME'][Strategy.dfProductInfo['ASSET_CODE']==dictOrderInfo['ASSET_CODE']].values[0]
             dictOrderInfo['ASSET_TYPE'] = Strategy.dfProductInfo['ASSET_TYPE'][Strategy.dfProductInfo['ASSET_CODE']==dictOrderInfo['ASSET_CODE']].values[0]
-            dictOrderInfo['MATURITY_DATE'] = Strategy.dfInfoMst['최종거래일'][Strategy.dfInfoMst['단축코드']==productCode].values[0]
+            dictOrderInfo['MATURITY_DATE'] = Strategy.dfInfoMst['최종거래일'][Strategy.dfInfoMst['종목코드']==productCode].values[0]
             dictOrderInfo['MATURITY'] = dictOrderInfo['MATURITY_DATE'][2:6]
             dictOrderInfo['QUANTITY'] = qty * d
             # 일단은 order_type 고려하지 않음 (때문에 price도 고려대상 X)
@@ -183,12 +183,13 @@ class Strategy(metaclass=SingletonMeta):
             if PriceInfo == None:
                 if i['QUANTITY'] > 0:
                     i['PRICE'] = 0
-                    direction = '02'
+                    direction = 'B'
                 elif i['QUANTITY'] < 0:
                     i['PRICE'] = 0
-                    direction = '01'
+                    direction = 'S'
                 logging.info('실주문: %s, %s, %s, %s', acntCode, i['PRODUCT_CODE'], i['QUANTITY'], 'M')
-                ret = interface.objOrder.order(acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction, 'M')
+                # order(self, acnt_num:str, pwd:str, code:str, qty, price, direction:str, stop_price
+                ret = interface.objOrder.order(acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction)
                 if ret is False:
                     logging.warning('주문 실패!')
                     return ret
@@ -200,7 +201,7 @@ class Strategy(metaclass=SingletonMeta):
                     i['PRICE'] = PriceInfo['현재가']
                     direction = '01'
                 logging.info('실주문: %s, %s, %s, %s', acntCode, i['PRODUCT_CODE'], i['QUANTITY'], i['PRICE'])
-                ret = interface.objOrder.order(interface, acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction)
+                ret = interface.objOrder.order(acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction)
                 if ret is False:
                     logging.warning('주문 실패!')
                     return ret
@@ -267,7 +268,7 @@ class Strategy(metaclass=SingletonMeta):
     
     def chkPrice(interface, PriceInfo):
         for i, v in enumerate(Strategy.lstPriceInfo):
-            if v['단축코드'] == PriceInfo['단축코드']:
+            if v['종목코드'] == PriceInfo['종목코드']:
                 if v['체결시간'].decode()[2:4] != PriceInfo['체결시간'].decode()[2:4]:  # min. 이 바뀌면
                     Strategy.addToHistData(interface, PriceInfo)
                 Strategy.lstPriceInfo[i] = PriceInfo.copy()
@@ -278,7 +279,7 @@ class Strategy(metaclass=SingletonMeta):
 
     def addToHistData(interface, PriceInfo):
         for i in Strategy.lstMktData:
-            if i['PRODUCT_CODE'] == PriceInfo['단축코드'].decode():
+            if i['PRODUCT_CODE'] == PriceInfo['종목코드'].decode():
                 settleMin = int(PriceInfo['체결시간'].decode()[2:4])
                 if settleMin == 0:
                     settleMin = 60
