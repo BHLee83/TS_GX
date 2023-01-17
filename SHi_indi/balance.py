@@ -36,9 +36,9 @@ class Balance():
         ret = self.IndiReal.dynamicCall("RequestRTReg(QString, QString)", "f3", self.strCurrentAcnt)
 
 
-    def stopBalanceRT(self, acnt_num):
+    def stopBalanceRT(self):
         if self.strCurrentAcnt != '':
-            self.IndiReal.dynamicCall("UnRequestRTReg(QString, QString)", "f3", acnt_num)
+            self.IndiReal.dynamicCall("UnRequestRTReg(QString, QString)", "f3", self.strCurrentAcnt)
 
     
     def ReceiveData(self, rqid):
@@ -96,9 +96,10 @@ class Balance():
                     DATA['통화코드'] = self.IndiTR.dynamicCall("GetMultiData(int, int)", i, 6)
                     DATA['평가손익'] = self.IndiTR.dynamicCall("GetMultiData(int, int)", i, 7)
                     DATA['잔고금액'] = self.IndiTR.dynamicCall("GetMultiData(int, int)", i, 8)   # 소수점2자리
-                self.instInterface.chkStop2(lstDATA)
+                    lstDATA.append(DATA)
 
-            self.instInterface.setTwBalanceInfoUI(lstDATA, False)
+                self.instInterface.chkStop2(lstDATA)
+                self.instInterface.setTwBalanceInfoUI(lstDATA, False)
     
 
     def ReceiveRTData(self, RealType):

@@ -149,9 +149,9 @@ class Strategy(metaclass=SingletonMeta):
                 d = -1
 
             if price == 0:
-                order_type = 'M'    # 시장가
+                order_type = '2'    # 시장가
             else:
-                order_type = 'L'    # 지정가
+                order_type = '1'    # 지정가
 
             dictOrderInfo = {}
             dictOrderInfo['OCCUR_TIME'] = dt.datetime.now().time()
@@ -189,7 +189,7 @@ class Strategy(metaclass=SingletonMeta):
                     direction = 'S'
                 logging.info('실주문: %s, %s, %s, %s', acntCode, i['PRODUCT_CODE'], i['QUANTITY'], 'M')
                 # order(self, acnt_num:str, pwd:str, code:str, qty, price, direction:str, stop_price
-                ret = interface.objOrder.order(acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction)
+                ret = interface.objOrder.order(acntCode, acntPwd, i['PRODUCT_CODE'], abs(i['QUANTITY']), i['PRICE'], direction, '2')    # 2: 시장가
                 if ret is False:
                     logging.warning('주문 실패!')
                     return ret

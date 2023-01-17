@@ -33,7 +33,7 @@ class Price():
                         ('체결수량', 'u4'), ('누적체결수량', 'u4'), ('매도1호가', 'f'), ('매도1호가수량', 'u4'), ('매수1호가', 'f'), ('매수1호가수량', 'u4')])
         self.PriceInfo = np.empty([1], dtype=PriceInfodt)
 
-        self.Historicaldt = np.dtype([('일자', 'S8'), ('시간', 'S6'), ('시가', 'f'), ('고가', 'f'), ('저가', 'f'), ('종가', 'f'), ('체결수량', 'u4')])
+        self.Historicaldt = np.dtype([('일자', 'S8'), ('시간', 'S6'), ('시가', 'f'), ('고가', 'f'), ('저가', 'f'), ('종가', 'f'), ('체결수량', 'f')])
         # self.Historical = np.empty([300], dtype=Historicaldt)
 
 

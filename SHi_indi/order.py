@@ -24,7 +24,7 @@ class Order():
         self.rqidD = {}
 
 
-    def order(self, acnt_num:str, pwd:str, code:str, qty, price, direction:str, stop_price=None, order_type:str='1', condition:str='C'):
+    def order(self, acnt_num:str, pwd:str, code:str, qty, price, direction:str, order_type:str='1', stop_price=None, condition:str='C'):
         " 선물 주문을 요청한다."
         if Strategy.chkAbnormOrder(acnt_num, code, qty, price, direction):  # 주문 이상여부 체크
             self.ReceiveSysMsg('주문 거부. 이상주문 감지. 시스템을 확인하세요!')
@@ -38,8 +38,8 @@ class Order():
             ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 4, direction)  # 매수/매도 구분 (B:매수, S:매도)
             ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 5, order_type)  # 가격조건 (1:지정가, 2:시장가, 3:STOP MARKET, 4:STOP LIMIT)
             ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 6, str(price))  # 주문가격
-            ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 7, str(qty))  # 주문수량
-            ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 8, str(stop_price))  # Stop지정가격
+            ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 7, qty)  # 주문수량
+            ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 8, stop_price)  # Stop지정가격
             ret = self.IndiTR.dynamicCall("SetSingleData(int, QString)", 9, condition)  # 조작구분 (C:일반주문)
             rqid = self.IndiTR.dynamicCall("RequestData()")  # 데이터 요청
             self.rqidD[rqid] = "SABF551U1"
